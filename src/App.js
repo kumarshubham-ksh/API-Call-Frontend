@@ -1,23 +1,84 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import Select from "react-select";
+import "./App.css";
 
 function App() {
+  const [jsonData, setJsonData] = useState("");
+  const [response, setResponse] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [error, setError] = useState(""); // State for error message
+
+  const handleSubmit = async () => {
+    try {
+      // Reset error message before attempting to submit
+      setError("");
+      // Parse JSON and submit
+      const parsedData = JSON.parse(jsonData);
+      const res = await axios.post("http://localhost:4000/bfhl", parsedData);
+      setResponse(res.data);
+    } catch (error) {
+      // Set error message if JSON parsing fails or if there's an API error
+      if (error instanceof SyntaxError) {
+        setError("Invalid JSON format. Please correct the JSON and try again.");
+      } else {
+        setError("An error occurred while submitting data.");
+      }
+    }
+  };
+
+  const handleSelectChange = (options) => {
+    setSelectedOptions(options);
+  };
+
+  const renderResponse = () => {
+    if (!response) return null;
+    const selectedValues = selectedOptions.map((option) => option.value);
+
+    return (
+      <div className="response">
+        {selectedValues.includes("Alphabets") && (
+          <div>Alphabets: {response.alphabets.join(", ")}</div>
+        )}
+        {selectedValues.includes("Numbers") && (
+          <div>Numbers: {response.numbers.join(", ")}</div>
+        )}
+        {selectedValues.includes("Highest Alphabet") && (
+          <div>Highest Alphabet: {response.highest_alphabet.join(", ")}</div>
+        )}
+      </div>
+    );
+  };
+
+  const options = [
+    { value: "Alphabets", label: "Alphabets" },
+    { value: "Numbers", label: "Numbers" },
+    { value: "Highest Alphabet", label: "Highest Alphabet" },
+  ];
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Bajaj Finserv Health Challenge Qualifier 1</h1>
+      <br />
+      <h3>By Kumar Shubham (21BCE2080)</h3>
+      <textarea
+        className="json-input"
+        value={jsonData}
+        onChange={(e) => setJsonData(e.target.value)}
+        placeholder="API Input"
+      />
+      <button className="submit-button" onClick={handleSubmit}>
+        Submit
+      </button>
+      <Select
+        isMulti
+        options={options}
+        onChange={handleSelectChange}
+        placeholder="Select options"
+      />
+      {error && <div className="error">{error}</div>}{" "}
+      {/* Display error message */}
+      {renderResponse()}
     </div>
   );
 }
