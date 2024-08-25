@@ -15,7 +15,10 @@ function App() {
       setError("");
       // Parse JSON and submit
       const parsedData = JSON.parse(jsonData);
-      const res = await axios.post("http://localhost:4000/bfhl", parsedData);
+      const res = await axios.post(
+        "https://bajaj-finserv-backend-ie38.onrender.com/bfhl",
+        parsedData
+      );
       setResponse(res.data);
     } catch (error) {
       // Set error message if JSON parsing fails or if there's an API error
